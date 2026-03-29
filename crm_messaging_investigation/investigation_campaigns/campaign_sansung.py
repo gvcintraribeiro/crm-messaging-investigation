@@ -93,46 +93,6 @@ WHERE s26_achado = 'sim'
 
 query_regex_s26.head(100)
 # %%
-# Temos um "Falar com a Lu" tambem, mas nao posso afirma que e relativo ao disparo de sansung
-query_regex_lu = duckdb.query("""
-
-WITH cam AS (
-                                 
-SELECT
-
-DISTINCT                           
-session_id session_campanha
-
-FROM df_camp_pro                                 
-
-        ),
-                    
-con AS (
-SELECT
-
-*,
-CASE
-    WHEN regexp_matches(text, '(?i)Falar\\s+com\\s+a\\s+Lu')
-    THEN 'sim'
-    ELSE 'não'
-END AS s26_achado
-
-FROM df_conv_pro)
-                
-SELECT
-                                 
-*
-FROM con
-                                                                
-LEFT JOIN cam
-ON cam.session_campanha =  con.session_id                            
-                                 
-WHERE s26_achado = 'sim'
-                                 
-""").to_df()
-
-query_regex_lu.head(100)
-# %%
 # Vou bucar na base de log se acho algo referente a essas palavras chaves
 
 query_regex_log_cupon = duckdb.query(
