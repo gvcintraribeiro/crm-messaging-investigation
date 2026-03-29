@@ -234,7 +234,14 @@ query_join_session_id = duckdb.query("""
 
 SELECT
 
-*
+camp.session_id,
+camp.publish_time AS publish_time_camp,
+camp.message_id AS message_id_camp,
+camp.template,
+con.text,
+con.publish_time AS publish_time_con,
+con.message_id AS message_id_con
+                                                                                                               
 
 FROM df_camp_processadas camp
 
@@ -245,7 +252,7 @@ ON con.session_id = camp.session_id
 """).to_df()
 
 query_join_session_id.head()
-query_join_session_id.to_csv('../data/data_processed/conversas_com_campanhas.csv')
+query_join_session_id.to_csv('../data/data_processed/conversas_com_campanhas.csv',index=False)
 # %% [markdown]
 
 # Resumo da base de conversas
@@ -264,3 +271,5 @@ query_join_session_id.to_csv('../data/data_processed/conversas_com_campanhas.csv
 # ## Hipóteses levantadas
 # **Sobre o disparo:**
 # - Sera que existem valores na varivel text do CUPOMS26 e dos CTAs: "Falar com a Lu" ou "Comprar Galaxy S26" ?
+
+# %%
