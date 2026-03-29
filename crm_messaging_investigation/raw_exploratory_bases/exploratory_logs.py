@@ -1,6 +1,5 @@
 # %%
 import pandas as pd
-import duckdb
 
 df_logs = pd.read_csv("../data/logs_omnichannel.csv",sep=",")
 # %%
