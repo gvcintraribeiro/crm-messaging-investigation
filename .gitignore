@@ -206,3 +206,5 @@ __marimo__/
 
 # Generated using ignr.py - github.com/Antrikshy/ignr.py
 
+#bases geradas
+crm_messaging_investigation/data/data_processed
