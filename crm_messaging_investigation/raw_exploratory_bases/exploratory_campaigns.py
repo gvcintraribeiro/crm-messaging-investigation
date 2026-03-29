@@ -158,7 +158,7 @@ GROUP BY 1
 
 HAVING qtde_distinta > 1
 
-ORDER BY qtde_distinta
+ORDER BY qtde_distinta DESC
 
 
 
