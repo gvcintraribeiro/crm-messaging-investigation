@@ -32,5 +32,5 @@ def remove_constant_columns(df):
 
 df_logs = remove_constant_columns(df_logs)
 
-df_logs.to_csv('../data/data_processed/df_logs.csv')
+df_logs.to_csv('../data/data_processed/logs_tratados.csv')
 # %%
