@@ -242,7 +242,7 @@ SELECT
 
 FROM df_camp
 
-QUALIFY row_number() OVER (PARTITION BY session_id ORDER BY publish_time DESC) = 1;
+-- QUALIFY row_number() OVER (PARTITION BY session_id ORDER BY publish_time DESC) = 1;
 
 """
 
