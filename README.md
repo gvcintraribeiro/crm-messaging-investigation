@@ -266,3 +266,26 @@ It is not a JSON type and cannot be deserialized: Comprar Galaxy S26 e...
 | **Mensagens disparadas?** | Parcialmente (indício) | Parcialmente (com falha) |
 | **Causa raiz** | Typo no nome do template e/ou falha de API | Campanha não registrada + erro de payload JSON |
 | **Ação necessária** | Confirmar com analista o nome correto | Corrigir serialização do payload |
+
+---
+ 
+## 💬 Comunicação ao Stakeholder
+ 
+> **Canal:** Google Chat  
+> **Tom:** Empático, claro e objetivo — sem jargão técnico desnecessário
+ 
+---
+ 
+**Mensagem:**
+
+Olá! Tudo bem?
+ 
+Obrigado por reportar — investigamos o que aconteceu com cada uma das campanhas e já temos um diagnóstico.
+ 
+**Samsung Galaxy S26 (20/03):**
+Identificamos um erro técnico no processo de envio. As mensagens chegaram a ser iniciadas, mas foram interrompidas antes de ser entregues por conta de um problema de comunicação entre dois sistemas internos. Isso pode ter sido provocado por uma inconsistência no cadastro da campanha ou por uma falha pontual na infraestrutura. Já estamos investigando a correção.
+ 
+**Apple (19/03):**
+Aqui precisamos da sua ajuda. Não encontramos na base o template `crm_cerebro_ads_apple_1903`, mas encontramos templates com nomes parecidos: `crm_cerebro_ads_apple_1003` e `crm_cerebro_ads_apple_1303`. Você reconhece algum desses nomes? Eles estavam programados para disparar no dia 19/03?
+ 
+Assim que tiver essa confirmação, finalizamos o diagnóstico e comunicamos o plano de ação completo. 🙏
