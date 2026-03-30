@@ -289,3 +289,8 @@ Identificamos um erro técnico no processo de envio. As mensagens chegaram a ser
 Aqui precisamos da sua ajuda. Não encontramos na base o template `crm_cerebro_ads_apple_1903`, mas encontramos templates com nomes parecidos: `crm_cerebro_ads_apple_1003` e `crm_cerebro_ads_apple_1303`. Você reconhece algum desses nomes? Eles estavam programados para disparar no dia 19/03?
  
 Assim que tiver essa confirmação, finalizamos o diagnóstico e comunicamos o plano de ação completo. 🙏
+
+## 👤 Autor
+ 
+Desenvolvido por **Guilherme** — Analytics Engineer  
+Estudo de caso de investigação de dados com Python, DuckDB e Pandas.
