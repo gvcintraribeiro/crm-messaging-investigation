@@ -138,7 +138,8 @@ df_apple_logs.head()
 # |---|---------------------|------------------------------------------------------------------|
 # | 1 | **Nome incorreto**  | Campanhas cadastradas com nomes errados no sistema.              |
 # | 2 | **Falha na API**    | Problema real na API — indício: mensagem `"Falar com a Lu"` no log. |
-# | 3 | **Ambas**           | As duas situações ocorreram simultaneamente.                     |
+# | 3 | **Base mensagem incompleta**    | Existem registros de conversa apenas do dia 20/06 no relatório enviado |
+# | 4 | **Ambas**           | As três situações ocorreram simultaneamente.                     |
 #
 # ---
 #
@@ -152,7 +153,7 @@ df_apple_logs.head()
 # **Interpretação da resposta:**
 #
 # - **Sim** → os nomes estão corretos no CRM; conclui-se que houve um **erro na API**
-#   durante o período dos disparos.
+#   durante o período dos disparos ou a base de conversas fornecida está sem o período completo de análise.
 #
 # - **Não** → a hipótese 1 se confirma; o problema está no **cadastro incorreto**
 #   das campanhas.

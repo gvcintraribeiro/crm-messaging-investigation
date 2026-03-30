@@ -175,7 +175,7 @@ df_join_session.to_csv(DATA_PROCESSED / "conversas_com_campanhas.csv", index=Fal
 # ### Características gerais
 # - As colunas `author`, `user_id`, `data`, `attributes`, `subscription_name` e `media_type`
 #   apresentam baixo valor analítico e foram descartadas.
-# - Os registros cobrem o período de 20/03.
+# - Os registros cobrem o período de 20/03. Estranho, pois a apple teve disparos dia 19/03.
 # - Uma `session_id` agrega múltiplas mensagens, que podem ser lidas em sequência
 #   ao ordenar por `publish_time`.
 # - O `message_id` da tabela de conversas tem significado distinto do `message_id`
