@@ -1,251 +1,160 @@
 # %%
+from pathlib import Path
+
 import duckdb
 import pandas as pd
 
-# %%
-df_camp_pro = pd.read_csv('../data/data_processed/campanhas_processadas.csv')
-df_conv_pro = pd.read_csv('../data/data_processed/conversas_processadas.csv')
-df_log_pro = pd.read_csv('../data/data_processed/logs_tratados.csv')
-df_camp_conv = pd.read_csv('../data/data_processed/conversas_com_campanhas.csv')
+from crm_messaging_investigation.functions.utils import (
+    buscar_keyword_conversas,
+    buscar_keyword_logs,
+)
+
+# =============================================================================
+# CONFIGURAÇÃO DE CAMINHOS
+# =============================================================================
+
+DATA_PROCESSED = Path("../data/data_processed")
+
+# =============================================================================
+# CARREGAMENTO DOS DADOS
+# =============================================================================
 
 # %%
-# Temos um "Falar com a Lu" tambem, mas nao posso afirma que e relativo ao disparo da Apple
-# nao ficou muito claro se a CTA "Falar com a Lu" e de fato da Apple
-# porem ela aparece existe uma coversa com essa frase que nao se relaciona com nenhuma session_id da tabala de campanhas
+df_camp_pro = pd.read_csv(DATA_PROCESSED / "campanhas_processadas.csv")
+df_conv_pro = pd.read_csv(DATA_PROCESSED / "conversas_processadas.csv")
+df_log_pro = pd.read_csv(DATA_PROCESSED / "logs_tratados.csv")
+df_camp_conv = pd.read_csv(DATA_PROCESSED / "conversas_com_campanhas.csv")
 
-query_regex_lu = duckdb.query("""
-
-WITH cam AS (
-                                 
-SELECT
-
-DISTINCT                           
-session_id session_campanha
-
-FROM df_camp_pro                                 
-
-        ),
-                    
-con AS (
-SELECT
-
-*,
-CASE
-    WHEN regexp_matches(text, '(?i)Falar\\s+com\\s+a\\s+Lu')
-    THEN 'sim'
-    ELSE 'não'
-END AS s26_achado
-
-FROM df_conv_pro)
-                
-SELECT
-                                 
-*
-FROM con
-                                                                
-LEFT JOIN cam
-ON cam.session_campanha =  con.session_id                            
-                                 
-WHERE s26_achado = 'sim'
-                                 
-""").to_df()
-
-query_regex_lu.head(100)
+# =============================================================================
+# BUSCA POR PALAVRAS-CHAVE — "FALAR COM A LU"
+# =============================================================================
 
 # %%
-# Aconteceu erro com essa mensagem tambem da Lu igual com com Sansung S26
-query_regex_log_lu = duckdb.query(
+# Foram encontradas conversas com a CTA "Falar com a Lu", porém sem associação
+# com nenhuma session_id da tabela de campanhas.
+# Ainda não é possível afirmar com certeza que essa CTA pertence exclusivamente
+# à campanha Apple — o vínculo permanece inconclusivo.
+
+df_lu_conversas = buscar_keyword_conversas(
+    df_conv_pro,
+    df_camp_pro,
+    pattern=r"(?i)Falar\s+com\s+a\s+Lu",
+    coluna_flag="lu_achado",
+)
+df_lu_conversas.head(100)
+
+# %%
+# O mesmo erro de desserialização identificado para o Galaxy S26 também ocorreu
+# com a mensagem "Falar com a Lu", reforçando a hipótese de falha no pipeline.
+
+df_lu_logs = buscar_keyword_logs(
+    df_log_pro, pattern=r"(?i)Falar\s+com\s+a\s+Lu", coluna_flag="lu_achado"
+)
+df_lu_logs.head()
+
+# %%
+# Inspeção do conteúdo das mensagens de log encontradas.
+df_lu_logs["jsonPayload.message"].to_dict()
+
+# =============================================================================
+# INVESTIGAÇÃO DE TEMPLATES COM NOMES SIMILARES — CAMPANHA APPLE
+# =============================================================================
+
+# %%
+# No início da análise foram identificados templates com nomenclatura similar
+# ao esperado (crm_cerebro_ads_apple_1903):
+#
+#   - crm_cerebro_ads_apple_1003
+#   - crm_cerebro_ads_apple_1303
+#   - crm_cerebro_ads_apple_at
+#
+# Hipótese: o campo de template pode ser de preenchimento livre, o que abre
+# a possibilidade de erro de digitação no cadastro da campanha.
+
+TEMPLATES_SIMILARES_APPLE = [
+    "crm_cerebro_ads_apple_1003",
+    "crm_cerebro_ads_apple_1303",
+    "crm_cerebro_ads_apple_at",
+]
+
+# %%
+# Contagem de registros associados a cada template similar.
+# Apenas dois deles se relacionam com conversas.
+# crm_cerebro_ads_apple_1003 e crm_cerebro_ads_apple_1303
+
+query_contagem_templates = f"""
+    SELECT
+        template,
+        COUNT(*) AS qtde_registros
+    FROM df_camp_conv
+    WHERE template IN ({', '.join(f"'{t}'" for t in TEMPLATES_SIMILARES_APPLE)})
+    GROUP BY template
 """
 
-SELECT 
+df_contagem_templates = duckdb.query(query_contagem_templates).to_df()
+df_contagem_templates
 
-*
-
-FROM (
-SELECT
-
-*,
-CASE
-    WHEN regexp_matches("jsonPayload.message", '(?i)Falar\\s+com\\s+a\\s+Lu')
-    THEN 'sim'
-    ELSE 'não'
-END AS cupom_achado
-
-FROM df_log_pro)
-
-WHERE cupom_achado = 'sim'
-
-
-"""
-).to_df()
-
-query_regex_log_lu.head()
 # %%
-query_regex_log_lu["jsonPayload.message"].to_dict()
-# %%
+# Exportação do detalhe completo dos registros com templates similares.
+# Apenas um deles menciona explicitamente o nome "apple" no texto da conversa.
 
-query_regex_log_lu = duckdb.query(
+query_detalhe_templates = f"""
+    SELECT *
+    FROM df_camp_conv
+    WHERE template IN ({', '.join(f"'{t}'" for t in TEMPLATES_SIMILARES_APPLE)})
 """
 
-SELECT 
+df_detalhe_templates = duckdb.query(query_detalhe_templates).to_df()
+df_detalhe_templates.to_csv(
+    DATA_PROCESSED / "templates_parecidos_apple.csv", index=False
+)
 
-*
-
-FROM (
-SELECT
-
-*,
-CASE
-    WHEN regexp_matches("jsonPayload.message", '(?i)Falar\\s+com\\s+a\\s+Lu')
-    THEN 'sim'
-    ELSE 'não'
-END AS cupom_achado
-
-FROM df_log_pro)
-
-WHERE cupom_achado = 'sim'
-
-
-"""
-).to_df()
+# =============================================================================
+# BUSCA PELO TERMO "APPLE" NAS CONVERSAS E LOGS
+# =============================================================================
 
 # %%
+# A palavra "apple" foi encontrada tanto nas conversas quanto nos logs,
+# porém sem contexto suficiente para extrair conclusões definitivas.
 
-# No comeco da analise eu indentifique que
-# existiam nomes parecidos para a campanha crm_cerebro_ads_apple_1903:
+df_apple_conversas = buscar_keyword_conversas(
+    df_conv_pro, df_camp_pro, pattern="(?i)apple", coluna_flag="apple_achado"
+)
+df_apple_conversas.head()
 
-#  'crm_cerebro_ads_apple_1003',
-#  'crm_cerebro_ads_apple_1303',
-#  'crm_cerebro_ads_apple_at',
-
-# Vou verificar se existe alguma menssagem associada a algumas dessas campanhas e contabilizar elas
-# o campo para preencher a campanha, parece ser um campo livre
-# e porque nao poderia ter acontecido um erro de preenchimento ?
-
-# Das campanhas, apenas duas se associam as conversas
-duckdb.query("""
-
-SELECT
-             
-template,
-COUNT(*) AS qtde_registros_por_template
-             
-FROM df_camp_conv
-
-WHERE template in ('crm_cerebro_ads_apple_1003',
-             'crm_cerebro_ads_apple_1303',
-             'crm_cerebro_ads_apple_at')
-GROUP BY 1
-
-""").to_df()
-
-
-# De fato tem varios registros, mas apenas um deles mencionam o nome apple
-duckdb.query("""
-
-SELECT
-             
-*
-             
-FROM df_camp_conv
-
-WHERE template in ('crm_cerebro_ads_apple_1003',
-             'crm_cerebro_ads_apple_1303',
-             'crm_cerebro_ads_apple_at')
-
-
-""").to_df().to_csv('../data/data_processed/templates_parecidos_apple.csv',index=False)
 # %%
-# Vou dar uma olhada para ver econtro o nome aplle se ele aparece em algum registro de conversa ou log
-duckdb.query("""
+df_apple_logs = buscar_keyword_logs(
+    df_log_pro, pattern="(?i)apple", coluna_flag="apple_achado"
+)
+df_apple_logs.head()
 
-WITH cam AS (
-                                 
-SELECT
-
-DISTINCT                           
-session_id session_campanha
-
-FROM df_camp_pro                                 
-
-        ),
-                    
-con AS (
-SELECT
-
-*,
-CASE
-    WHEN regexp_matches(text, '(?i)apple')
-    THEN 'sim'
-    ELSE 'não'
-END AS s26_achado
-
-FROM df_conv_pro)
-                
-SELECT
-                                 
-*
-FROM con
-                                                                
-LEFT JOIN cam
-ON cam.session_campanha =  con.session_id                            
-                                 
-WHERE s26_achado = 'sim'
-
-
-""").to_df().head()
-# %%
-duckdb.query("""
-
-SELECT 
-
-*
-
-FROM (
-SELECT
-
-*,
-CASE
-    WHEN regexp_matches("jsonPayload.message", '(?i)apple')
-    THEN 'sim'
-    ELSE 'não'
-END AS cupom_achado
-
-FROM df_log_pro)
-
-WHERE cupom_achado = 'sim'
-
-
-""").to_df().head()
-# %%
 # %% [markdown]
 # ---
-# ## 🧩 Conclusão Parcial — Causa Raiz Ainda Indeterminada
+# ## Conclusão Parcial — Causa Raiz Ainda Indeterminada
 #
 # Não foi possível chegar a uma conclusão definitiva. As hipóteses em aberto são:
 #
-# | # | Hipótese | Descrição |
-# |---|---|---|
-# | 1 | **Nome incorreto** | Campanhas cadastradas com nomes errados no sistema |
-# | 2 | **Falha no log** | Problema real na API — pista: mensagem `"Falar com Lu"` no log |
-# | 3 | **Ambas** | As duas situações ocorreram simultaneamente |
+# | # | Hipótese            | Descrição                                                        |
+# |---|---------------------|------------------------------------------------------------------|
+# | 1 | **Nome incorreto**  | Campanhas cadastradas com nomes errados no sistema.              |
+# | 2 | **Falha na API**    | Problema real na API — indício: mensagem `"Falar com a Lu"` no log. |
+# | 3 | **Ambas**           | As duas situações ocorreram simultaneamente.                     |
 #
 # ---
 #
-# ### 🔎 Como descartar uma hipótese
+# ### Como descartar uma hipótese
 #
 # A forma mais direta é **consultar o analista de CRM** com as seguintes perguntas:
 #
 # > - Você reconhece as campanhas `crm_cerebro_ads_apple_1003` e `crm_cerebro_ads_apple_1303`?
 # > - Elas estavam programadas para disparar nos dias **19** e **20**?
 #
-# #### Interpretação da resposta:
+# **Interpretação da resposta:**
 #
-# - ✅ **Se sim** → os nomes estão corretos no CRM, portanto podemos concluir que
-#   houve de fato um **erro na API** no período dos disparos.
+# - **Sim** → os nomes estão corretos no CRM; conclui-se que houve um **erro na API**
+#   durante o período dos disparos.
 #
-# - ❌ **Se não** → a hipótese 1 (nome incorreto) se confirma e o problema
-#   está no cadastro das campanhas.
-#
-# ---
+# - **Não** → a hipótese 1 se confirma; o problema está no **cadastro incorreto**
+#   das campanhas.
+
 # %%
