@@ -1,35 +1,42 @@
 # %%
+from pathlib import Path
+
 import pandas as pd
 
-df_logs = pd.read_csv("../data/logs_omnichannel.csv",sep=",")
-# %%
-df_logs.head()
-# %%
-df_logs.shape
-# %%
-df_logs.columns
-# %%
-df_logs.info()
-# %%
-df_logs.nunique()
-# %%
-# Aqui eu vou exportar alguns dados para vizualizar
-# no google sheets, porque e muito extenso esse dataset
-# um pouco inviavel utilizar isso tudo para analisar um informacao
-df_logs.loc[:100].to_csv('../data/data_processed/df_logs_limit.csv')
+from crm_messaging_investigation.functions.utils import remover_colunas_constantes
+
+# =============================================================================
+# CONFIGURAÇÃO DE CAMINHOS
+# =============================================================================
+
+DATA_RAW = Path("../data")
+DATA_PROCESSED = Path("../data/data_processed")
+
+# =============================================================================
+# CARREGAMENTO DOS DADOS
+# =============================================================================
 
 # %%
-# Existem muitas variveis que estao com valores iguais e que atribuim nada de importante para um futura analise
-# para isso fiz um algoritimo para retirar essas colunas
+df_logs = pd.read_csv(DATA_RAW / "logs_omnichannel.csv")
 
-def remove_constant_columns(df):
-    varying = [col for col in df.columns if df[col].nunique(dropna=False) > 1]
-    removed = [col for col in df.columns if col not in varying]
-    
-    print(f"Colunas removidas ({len(removed)}): {removed}")
-    return df[varying]
+# %%
+# Exportação de uma amostra para inspeção visual no Google Sheets.
+# O volume total do dataset inviabiliza a análise manual completa.
+df_logs.head(100).to_csv(DATA_PROCESSED / "df_logs_amostra.csv", index=False)
 
-df_logs = remove_constant_columns(df_logs)
+# =============================================================================
+# REMOÇÃO DE COLUNAS CONSTANTES
+# =============================================================================
 
-df_logs.to_csv('../data/data_processed/logs_tratados.csv')
+
+# %%
+df_logs = remover_colunas_constantes(df_logs)
+
+# =============================================================================
+# EXPORTAÇÃO
+# =============================================================================
+
+# %%
+df_logs.to_csv(DATA_PROCESSED / "logs_tratados.csv", index=False)
+
 # %%
