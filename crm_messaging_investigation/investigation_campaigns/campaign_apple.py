@@ -3,6 +3,7 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+from IPython.display import display
 
 from crm_messaging_investigation.functions.utils import (
     buscar_keyword_conversas,
@@ -13,7 +14,7 @@ from crm_messaging_investigation.functions.utils import (
 # CONFIGURAÇÃO DE CAMINHOS
 # =============================================================================
 
-DATA_PROCESSED = Path("../data/data_processed")
+DATA_PROCESSED = Path(__file__).resolve().parent.parent / "data" / "data_processed"
 
 # =============================================================================
 # CARREGAMENTO DOS DADOS
@@ -41,7 +42,7 @@ df_lu_conversas = buscar_keyword_conversas(
     pattern=r"(?i)Falar\s+com\s+a\s+Lu",
     coluna_flag="lu_achado",
 )
-df_lu_conversas.head(100)
+display(df_lu_conversas.head(100))
 
 # %%
 # O mesmo erro de desserialização identificado para o Galaxy S26 também ocorreu
@@ -50,11 +51,11 @@ df_lu_conversas.head(100)
 df_lu_logs = buscar_keyword_logs(
     df_log_pro, pattern=r"(?i)Falar\s+com\s+a\s+Lu", coluna_flag="lu_achado"
 )
-df_lu_logs.head()
+display(df_lu_logs.head())
 
 # %%
 # Inspeção do conteúdo das mensagens de log encontradas.
-df_lu_logs["jsonPayload.message"].to_dict()
+print(df_lu_logs["jsonPayload.message"].to_dict())
 
 # =============================================================================
 # INVESTIGAÇÃO DE TEMPLATES COM NOMES SIMILARES — CAMPANHA APPLE
@@ -92,7 +93,7 @@ query_contagem_templates = f"""
 """
 
 df_contagem_templates = duckdb.query(query_contagem_templates).to_df()
-df_contagem_templates
+display(df_contagem_templates)
 
 # %%
 # Exportação do detalhe completo dos registros com templates similares.
@@ -120,13 +121,13 @@ df_detalhe_templates.to_csv(
 df_apple_conversas = buscar_keyword_conversas(
     df_conv_pro, df_camp_pro, pattern="(?i)apple", coluna_flag="apple_achado"
 )
-df_apple_conversas.head()
+display(df_apple_conversas.head())
 
 # %%
 df_apple_logs = buscar_keyword_logs(
     df_log_pro, pattern="(?i)apple", coluna_flag="apple_achado"
 )
-df_apple_logs.head()
+display(df_apple_logs.head())
 
 # %% [markdown]
 # ---
