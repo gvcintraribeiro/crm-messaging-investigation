@@ -2,6 +2,7 @@
 from pathlib import Path
 
 import pandas as pd
+from IPython.display import display
 
 from crm_messaging_investigation.functions.utils import (
     buscar_keyword_conversas,
@@ -12,7 +13,7 @@ from crm_messaging_investigation.functions.utils import (
 # CONFIGURAÇÃO DE CAMINHOS
 # =============================================================================
 
-DATA_PROCESSED = Path("../data/data_processed")
+DATA_PROCESSED = Path(__file__).resolve().parent.parent / "data" / "data_processed"
 
 # =============================================================================
 # CARREGAMENTO DOS DADOS
@@ -34,7 +35,7 @@ df_log_pro = pd.read_csv(DATA_PROCESSED / "logs_tratados.csv")
 df_cupom = buscar_keyword_conversas(
     df_conv_pro, df_camp_pro, pattern="(?i)CUPOMS26", coluna_flag="cupom_achado"
 )
-df_cupom.head(100)
+display(df_cupom.head(100))
 
 # %%
 # Busca por menções ao produto Galaxy S26 nas conversas.
@@ -43,7 +44,7 @@ df_cupom.head(100)
 df_s26 = buscar_keyword_conversas(
     df_conv_pro, df_camp_pro, pattern=r"(?i)Galaxy\s+S26", coluna_flag="s26_achado"
 )
-df_s26.head(100)
+display(df_s26.head(100))
 
 # =============================================================================
 # BUSCA POR PALAVRAS-CHAVE NA BASE DE LOGS
@@ -54,7 +55,7 @@ df_s26.head(100)
 df_log_s26 = buscar_keyword_logs(
     df_log_pro, pattern=r"(?i)Galaxy\s+S26", coluna_flag="lu_achado"
 )
-df_log_s26.head()
+display(df_log_s26.head())
 
 # %%
 df_log_s26.to_csv(DATA_PROCESSED / "log_samsung_s26.csv", index=False)
@@ -133,3 +134,5 @@ df_log_s26.to_csv(DATA_PROCESSED / "log_samsung_s26.csv", index=False)
 #
 # - **Webhook de alertas:** configurar na camada de logs um webhook que dispare eventos
 #   em tempo real sempre que esse erro específico for detectado.
+
+# %%

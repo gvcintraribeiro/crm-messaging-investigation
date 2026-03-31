@@ -3,6 +3,7 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+from IPython.display import display
 
 from crm_messaging_investigation.functions.utils import (
     explorar_dataframe,
@@ -13,8 +14,8 @@ from crm_messaging_investigation.functions.utils import (
 # CONFIGURAÇÃO DE CAMINHOS
 # =============================================================================
 
-DATA_RAW = Path("../data")
-DATA_PROCESSED = Path("../data/data_processed")
+DATA_RAW = Path(__file__).resolve().parent.parent / "data"
+DATA_PROCESSED = Path(__file__).resolve().parent.parent / "data" / "data_processed"
 
 # =============================================================================
 # CARREGAMENTO DOS DADOS
@@ -70,7 +71,7 @@ COLUNAS_DESCARTADAS_V1 = [
 
 df_camp = df_camp.drop(columns=COLUNAS_DESCARTADAS_V1)
 
-df_camp.head()
+display(df_camp.head())
 
 # =============================================================================
 # VERIFICAÇÕES EXPLORATÓRIAS
@@ -111,7 +112,7 @@ query_ctwa_source = """
 """
 
 df_ctwa_source = duckdb.query(query_ctwa_source).to_df()
-df_ctwa_source
+display(df_ctwa_source)
 
 # =============================================================================
 # ANÁLISE DE SESSION_ID × MESSAGE_ID
@@ -140,7 +141,7 @@ df_session_message.head()
 # %%
 # Percentual de session_ids com mais de um registro na base.
 
-sessions_duplicadas(df_camp)
+display(sessions_duplicadas(df_camp))
 
 # =============================================================================
 # PROCESSAMENTO FINAL E EXPORTAÇÃO
