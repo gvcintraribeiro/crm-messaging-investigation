@@ -298,6 +298,108 @@ Aqui precisamos da sua ajuda. Não encontramos na base o template `crm_cerebro_a
  
 Assim que tiver essa confirmação, finalizamos o diagnóstico e comunicamos o plano de ação completo. 🙏
 
+## 🚨 Proposta de Monitoramento
+
+As duas campanhas desse caso teriam sido detectadas automaticamente se os seguintes checks estivessem ativos. As queries abaixo são prontas para uso e podem ser agendadas via pipeline de dados ou configuradas como alertas no GCP Logging.
+
+---
+
+### Check 1 — Sufixo de data no nome do template diverge da data de disparo
+
+Convenção observada nos dados: o sufixo numérico do template segue o padrão `DDMM` (ex: `_1903` = 19 de março). O template `crm_cerebro_ads_apple_1003` foi disparado em 19/03 — mas `1003` lido como `DDMM` aponta para 10 de março. Essa inconsistência é verificável **dentro da própria tabela `campanhas`**, sem joins.
+```sql
+SELECT
+    session_id,
+    template,
+    publish_time::DATE                                    AS data_disparo,
+    REGEXP_EXTRACT(template, '(\d{4})$')                  AS sufixo_ddmm,
+    STRPTIME(REGEXP_EXTRACT(template, '(\d{4})$'), '%d%m')::DATE AS data_esperada
+FROM campanhas
+WHERE REGEXP_EXTRACT(template, '(\d{4})$') IS NOT NULL
+  AND publish_time::DATE
+      != STRPTIME(REGEXP_EXTRACT(template, '(\d{4})$'), '%d%m')::DATE
+```
+
+> ⚠️ Qualquer linha retornada indica um template com data inconsistente — candidato a erro de nomenclatura ou disparo no dia errado.
+
+---
+
+### Check 2 — `version` fora do padrão `sendtype-NNN`
+
+Todo registro legítimo segue o padrão `sendtype-NNN`. Valores como `"1"`, `"v2"` ou `NULL` indicam que a campanha não passou pelo fluxo padrão da ferramenta de CRM e pode não aparecer no dashboard.
+```sql
+SELECT
+    template,
+    version,
+    COUNT(*)         AS disparos,
+    MIN(publish_time) AS primeiro_disparo
+FROM campanhas
+WHERE version NOT LIKE 'sendtype-%'
+   OR version IS NULL
+GROUP BY template, version
+ORDER BY primeiro_disparo DESC
+```
+
+> ⚠️ Campanhas com `version` irregular são invisíveis para qualquer agregação que filtre por `sendtype`. Esse check expõe registros que escapam silenciosamente.
+
+---
+
+### Check 3 — Monitor de cobertura diária (sessões órfãs)
+
+Sessões com CTAs conhecidos que **não possuem correspondente em `campanhas`** são um sinal direto de campanha não registrada. Rodar diariamente com uma janela do dia anterior.
+```sql
+-- Sessões com CTA reconhecido sem campanha correspondente
+SELECT
+    conv.text                  AS cta,
+    COUNT(*)                   AS sessoes_orfas
+FROM conversas conv
+LEFT JOIN campanhas camp
+       ON conv.session_id = camp.session_id
+WHERE conv.text IN ('Comprar Galaxy S26', 'Falar com a Lu')  -- expandir conforme CTAs ativos
+  AND camp.session_id IS NULL
+  AND conv.publish_time::DATE = CURRENT_DATE - INTERVAL '1 day'
+GROUP BY conv.text
+HAVING COUNT(*) > 10  -- threshold: ajustar conforme volume esperado
+```
+
+> 💡 O threshold de 50 sessões órfãs no mesmo dia com o mesmo CTA é conservador — pode ser reduzido conforme o volume histórico de cada campanha.
+
+---
+
+### Alerta via GCP Logging (sem pipeline adicional)
+
+Os erros da campanha Galaxy S26 **já estavam nos logs** do omnichannel com a mensagem:
+```
+It is not a JSON type and cannot be deserialized
+```
+
+Basta configurar um **Log-based Alert** no GCP Logging com esse padrão. Se o volume ultrapassar `N` ocorrências/hora, o alerta é disparado automaticamente — o suficiente para detectar a falha de deserialização horas após o início do disparo, antes de qualquer escalada manual.
+```
+resource.type="gce_instance"
+textPayload=~"cannot be deserialized"
+```
+### Notificações via Google Chat
+
+Todos os checks acima podem ser integrados ao Google Chat através de **Incoming Webhooks**, centralizando os alertas em um canal dedicado da equipe de CRM.
+
+**Fluxo sugerido:**
+```
+Check SQL / GCP Alert dispara → Cloud Function ou script agendado → Webhook → Google Chat
+```
+
+**Mapeamento de checks para alertas:**
+
+| Check | Gatilho | Severidade |
+|---|---|---|
+| Sufixo de data divergente | Qualquer linha retornada | 🟡 Atenção |
+| `version` fora do padrão | Qualquer linha retornada | 🟡 Atenção |
+| Sessões órfãs | `COUNT(*) > 10` no mesmo CTA/dia | 🔴 Crítico |
+| Erro de deserialização (GCP) | `N` ocorrências/hora | 🔴 Crítico |
+
+---
+
+> **Resumo:** os três checks SQL cobrem falhas de nomenclatura, registro incorreto e ausência de cobertura. O alerta GCP fecha o ciclo pelo lado de infraestrutura. Juntos, os quatro mecanismos teriam detectado ambas as campanhas deste caso em menos de 24 horas após o disparo.
+
 ## 👤 Autor
  
 Desenvolvido por **Guilherme** — Analytics Engineer  
