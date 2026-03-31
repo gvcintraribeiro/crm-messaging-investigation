@@ -209,17 +209,19 @@ flowchart TD
 
     AMBAS --> C1[❓ Hipótese 1: Nome do template\ncadastrado incorretamente no CRM]
     AMBAS --> C2[❓ Hipótese 2: Falha na API\ndurante o período do disparo]
+    AMBAS --> C3[❓ Hipótese 3: Dados Incompletos\nexistem dados de conversas apenas do dia 20/03]
 
     C1 --> NEXT[✅ Confirmar com analista:\nVocê reconhece esses nomes?]
-    C2 --> NEXT
+    C3 --> NEXT1[📄 Extrair dados de conversas do dia 19/03 e 20/03]
 ```
 
 **Achados:**
 - Os templates `crm_cerebro_ads_apple_1903` (informado) **não foram encontrados** na base de campanhas.
 - Templates com nomes parecidos foram localizados: `crm_cerebro_ads_apple_1003` e `crm_cerebro_ads_apple_1303`.
 - O CTA `"Falar com a Lu"` **aparece nos logs**, sugerindo que ao menos parte do disparo foi processada.
+- Existem conversas com datas de publicação apenas do dia 20/03 na base enviada
 
-**Causa raiz:** Indefinida — pode ser erro de cadastro do template (typo na data) **ou** falha sistêmica na API, ou ambos. Necessita confirmação do analista.
+**Causa raiz:** Indefinida — pode ser erro de cadastro do template (typo na data) **ou** falha sistêmica na API **ou** o período enviado, ou ambos. Necessita confirmação do analista os templates e buscar uma base com um período maior. 
 
 ---
 
@@ -264,8 +266,8 @@ It is not a JSON type and cannot be deserialized: Comprar Galaxy S26 e...
 | **Campanha cadastrada?** | ❓ Possivelmente com nome errado | ❌ Não registrada |
 | **Evidência nos logs?** | ✅ CTA "Falar com a Lu" encontrado | ✅ Erro de deserialização |
 | **Mensagens disparadas?** | Parcialmente (indício) | Parcialmente (com falha) |
-| **Causa raiz** | Typo no nome do template e/ou falha de API | Campanha não registrada + erro de payload JSON |
-| **Ação necessária** | Confirmar com analista o nome correto | Corrigir serialização do payload |
+| **Causa raiz** | Typo no nome do template e/ou falha de API e/ou período da base conversas | Campanha não registrada + erro de payload JSON | 
+| **Ação necessária** | Confirmar com analista o nome correto e extrair base com o período do dia 19/03 | Corrigir serialização do payload |
 
 ---
  
