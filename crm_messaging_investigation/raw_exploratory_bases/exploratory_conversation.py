@@ -3,6 +3,7 @@ from pathlib import Path
 
 import duckdb
 import pandas as pd
+from IPython.display import display
 
 from crm_messaging_investigation.functions.utils import (
     explorar_dataframe,
@@ -13,8 +14,8 @@ from crm_messaging_investigation.functions.utils import (
 # CONFIGURAÇÃO DE CAMINHOS
 # =============================================================================
 
-DATA_RAW = Path("../data")
-DATA_PROCESSED = Path("../data/data_processed")
+DATA_RAW = Path(__file__).resolve().parent.parent / "data"
+DATA_PROCESSED = Path(__file__).resolve().parent.parent / "data" / "data_processed"
 
 # =============================================================================
 # CARREGAMENTO DOS DADOS
@@ -70,7 +71,7 @@ COLUNAS_DESCARTADAS = [
 df_conv = df_conv.drop(columns=COLUNAS_DESCARTADAS)
 
 print("Colunas restantes:", df_conv.columns.tolist())
-df_conv.head()
+display(df_conv.head())
 
 # =============================================================================
 # ANÁLISE DE SESSION_ID × MESSAGE_ID
@@ -96,7 +97,7 @@ df_session_message.head()
 
 # %%
 # Percentual de session_ids com mais de um registro na base
-sessions_duplicadas(df_conv)
+display(sessions_duplicadas(df_conv))
 
 # =============================================================================
 # ORDENAÇÃO E EXPORTAÇÃO
@@ -108,7 +109,7 @@ sessions_duplicadas(df_conv)
 
 df_conv = df_conv.sort_values(by=["session_id", "publish_time", "message_id"])
 
-df_conv.head()
+display(df_conv.head())
 df_conv.to_csv(DATA_PROCESSED / "conversas_processadas.csv", index=False)
 
 # =============================================================================
@@ -165,7 +166,7 @@ query_join_session_id = """
 """
 
 df_join_session = duckdb.query(query_join_session_id).to_df()
-df_join_session.head()
+display(df_join_session.head())
 df_join_session.to_csv(DATA_PROCESSED / "conversas_com_campanhas.csv", index=False)
 
 # %% [markdown]

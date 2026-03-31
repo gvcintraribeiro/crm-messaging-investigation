@@ -9,8 +9,8 @@ from crm_messaging_investigation.functions.utils import remover_colunas_constant
 # CONFIGURAÇÃO DE CAMINHOS
 # =============================================================================
 
-DATA_RAW = Path("../data")
-DATA_PROCESSED = Path("../data/data_processed")
+DATA_RAW = Path(__file__).resolve().parent.parent / "data"
+DATA_PROCESSED = Path(__file__).resolve().parent.parent / "data" / "data_processed"
 
 # =============================================================================
 # CARREGAMENTO DOS DADOS
