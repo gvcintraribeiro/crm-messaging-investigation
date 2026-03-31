@@ -191,11 +191,11 @@ flowchart TD
     R1 --> OUTPUT([📝 Comunicação\n+ Proposta de Monitoramento])
     R2 --> OUTPUT
 
-    click EDA1 href "./crm_messaging_investigation/raw_exploratory_bases/exploratory_campaigns.py" "Ver arquivo" _blank
-    click EDA2 href "./crm_messaging_investigation/raw_exploratory_bases/exploratory_conversation.py" "Ver arquivo" _blank
-    click EDA3 href "./crm_messaging_investigation/raw_exploratory_bases/exploratory_logs.py" "Ver arquivo" _blank
-    click INV1 href "./crm_messaging_investigation/investigation_campaigns/campaign_apple.py" "Ver arquivo" _blank
-    click INV2 href "./crm_messaging_investigation/investigation_campaigns/campaign_samsung.py" "Ver arquivo" _blank
+    click EDA1 href "https://github.com/gvcintraribeiro/crm-messaging-investigation/blob/main/crm_messaging_investigation/raw_exploratory_bases/exploratory_campaigns.py" "Ver arquivo" _blank
+    click EDA2 href "https://github.com/gvcintraribeiro/crm-messaging-investigation/blob/main/crm_messaging_investigation/raw_exploratory_bases/exploratory_conversation.py" "Ver arquivo" _blank
+    click EDA3 href "https://github.com/gvcintraribeiro/crm-messaging-investigation/blob/main/crm_messaging_investigation/raw_exploratory_bases/exploratory_logs.py" "Ver arquivo" _blank
+    click INV1 href "https://github.com/gvcintraribeiro/crm-messaging-investigation/blob/main/crm_messaging_investigation/investigation_campaigns/campaign_apple.py" "Ver arquivo" _blank
+    click INV2 href "https://github.com/gvcintraribeiro/crm-messaging-investigation/blob/main/crm_messaging_investigation/investigation_campaigns/campaign_samsung.py" "Ver arquivo" _blank
 ```
 
 ---
