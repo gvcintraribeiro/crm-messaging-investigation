@@ -400,6 +400,61 @@ Check SQL / GCP Alert dispara → Cloud Function ou script agendado → Webhook 
 
 > **Resumo:** os três checks SQL cobrem falhas de nomenclatura, registro incorreto e ausência de cobertura. O alerta GCP fecha o ciclo pelo lado de infraestrutura. Juntos, os quatro mecanismos teriam detectado ambas as campanhas deste caso em menos de 24 horas após o disparo.
 
+---
+ 
+## ▶️ Como Executar
+
+### Pré-requisitos
+
+- [pyenv](https://github.com/pyenv/pyenv) para gerenciar a versão do Python
+- [Poetry](https://python-poetry.org/) para gerenciar dependências
+
+### 1. Configurar o Python com pyenv
+```bash
+pyenv install 3.13
+pyenv local 3.13        # cria o arquivo .python-version na raiz do projeto
+```
+
+### 2. Clonar e instalar dependências
+```bash
+git clone https://github.com/gvcintraribeiro/crm-messaging-investigation
+cd crm-messaging-investigation
+
+poetry install          # cria o .venv e instala todas as dependências
+```
+
+### 3. Executar via terminal
+```bash
+# EDA — bases brutas
+poetry run python crm_messaging_investigation/raw_exploratory_bases/exploratory_campaigns.py
+poetry run python crm_messaging_investigation/raw_exploratory_bases/exploratory_conversation.py
+poetry run python crm_messaging_investigation/raw_exploratory_bases/exploratory_logs.py
+
+# Investigação por campanha
+poetry run python crm_messaging_investigation/investigation_campaigns/campaign_apple.py
+poetry run python crm_messaging_investigation/investigation_campaigns/campaign_samsung.py
+
+# Ou tudo de uma vez via Makefile
+make investigate
+```
+
+### 4. Executar via VS Code (modo célula — recomendado)
+
+Os scripts foram escritos com marcadores `# %%`, o que permite executá-los célula por célula
+igual ao Jupyter Notebook, diretamente no VS Code.
+
+**Pré-requisito:** extensão [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) instalada no VS Code.
+
+Ao abrir qualquer `.py` do projeto e clicar em **Run Cell** (ou `Shift+Enter`), o VS Code
+pedirá para selecionar um kernel. Selecione o interpretador do `.venv` do projeto:
+```
+.venv/bin/python  (Python 3.13 — recomendado)
+```
+
+> 💡 Se o `.venv` não aparecer na lista, abra a paleta de comandos (`Ctrl+Shift+P`),
+> busque por **Python: Select Interpreter** e aponte manualmente para
+> `.venv/bin/python` na raiz do projeto.
+
 ## 👤 Autor
  
 Desenvolvido por **Guilherme** — Analytics Engineer  
