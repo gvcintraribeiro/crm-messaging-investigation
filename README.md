@@ -362,7 +362,7 @@ GROUP BY conv.text
 HAVING COUNT(*) > 10  -- threshold: ajustar conforme volume esperado
 ```
 
-> 💡 O threshold de 50 sessões órfãs no mesmo dia com o mesmo CTA é conservador — pode ser reduzido conforme o volume histórico de cada campanha.
+> 💡 O threshold de 10 sessões órfãs no mesmo dia com o mesmo CTA é conservador — pode ser reduzido conforme o volume histórico de cada campanha.
 
 ---
 
