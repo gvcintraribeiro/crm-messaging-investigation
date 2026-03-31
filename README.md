@@ -163,8 +163,6 @@ flowchart LR
 
 ### Fases
 
-> 🖱️ Ao clicar em um bloco do diagrama com extensão .py, você será direcionado ao arquivo correspondente.
-
 ```mermaid
 flowchart TD
     START([Relatório do analista de CRM]) --> EDA1
@@ -185,7 +183,7 @@ flowchart TD
     INV --> INV1
     INV --> INV2
 
-    INV1 --> R1([🍎 Causa: Nome incorreto\nou falha de API])
+    INV1 --> R1([🍎 Causa: Nome incorreto\nou falha de API ou período relatório])
     INV2 --> R2([📱 Causa: Erro de\ndeserialização JSON])
 
     R1 --> OUTPUT([📝 Comunicação\n+ Proposta de Monitoramento])
