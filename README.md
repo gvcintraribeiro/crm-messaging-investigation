@@ -163,6 +163,8 @@ flowchart LR
 
 ### Fases
 
+> 🖱️ Ao clicar em um bloco do diagrama com extensão .py, você será direcionado ao arquivo correspondente.
+
 ```mermaid
 flowchart TD
     START([Relatório do analista de CRM]) --> EDA1
@@ -188,6 +190,12 @@ flowchart TD
 
     R1 --> OUTPUT([📝 Comunicação\n+ Proposta de Monitoramento])
     R2 --> OUTPUT
+
+    click EDA1 href "./crm_messaging_investigation/raw_exploratory_bases/exploratory_campaigns.py" "Ver arquivo" _blank
+    click EDA2 href "./crm_messaging_investigation/raw_exploratory_bases/exploratory_conversation.py" "Ver arquivo" _blank
+    click EDA3 href "./crm_messaging_investigation/raw_exploratory_bases/exploratory_logs.py" "Ver arquivo" _blank
+    click INV1 href "./crm_messaging_investigation/investigation_campaigns/campaign_apple.py" "Ver arquivo" _blank
+    click INV2 href "./crm_messaging_investigation/investigation_campaigns/campaign_samsung.py" "Ver arquivo" _blank
 ```
 
 ---
