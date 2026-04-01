@@ -7,6 +7,7 @@ from IPython.display import display
 
 from crm_messaging_investigation.functions.utils import (
     explorar_dataframe,
+    session_message,
     sessions_duplicadas,
 )
 
@@ -82,18 +83,8 @@ display(df_conv.head())
 # Hipótese: sim — session_id se comporta como uma dimensão (chave de agrupamento),
 # enquanto message_id registra eventos individuais dentro da sessão.
 
-query_session_message = """
-    SELECT
-        session_id,
-        COUNT(DISTINCT message_id) AS qtde_distinta
-    FROM df_conv
-    GROUP BY session_id
-    HAVING qtde_distinta > 1
-    ORDER BY qtde_distinta DESC
-"""
+display(session_message(df_conv).head())
 
-df_session_message = duckdb.query(query_session_message).to_df()
-df_session_message.head()
 
 # %%
 # Percentual de session_ids com mais de um registro na base
