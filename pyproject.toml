@@ -12,7 +12,7 @@ dependencies = [
     "duckdb (>=1.5.1,<2.0.0)"
 ]
 
-packages = [{ include = "functions", from = "crm_messaging_investigation" }]
+packages = [{ include = "crm_messaging_investigation" }]
 
 
 [build-system]
