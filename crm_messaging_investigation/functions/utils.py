@@ -18,6 +18,24 @@ def explorar_dataframe(df: pd.DataFrame) -> None:
     print(df["publish_time"].dt.date.unique())
 
 
+def session_message(df: pd.DataFrame) -> pd.DataFrame:
+    """Calcula a quantidade de menssagens que um sessao pode ter"""
+
+    query = """
+            SELECT
+                session_id,
+                COUNT(DISTINCT message_id) AS qtde_distinta
+            FROM df_alias
+            GROUP BY session_id
+            HAVING qtde_distinta > 1
+            ORDER BY qtde_distinta DESC
+    """
+    df_alias = df
+
+    df_session_message = duckdb.query(query).to_df()
+    return df_session_message
+
+
 def sessions_duplicadas(df: pd.DataFrame) -> pd.DataFrame:
     """Calcula participação de valores session_id duplicados em relação ao total"""
 
