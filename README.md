@@ -316,7 +316,6 @@ SELECT
     CURRENT_DATE                             AS data_esperada
 FROM campanhas
 WHERE REGEXP_EXTRACT(template, '(\d{4})$') IS NOT NULL
-  AND publish_time::DATE != CURRENT_DATE
   AND STRPTIME(
           CAST(YEAR(CURRENT_DATE) AS VARCHAR) || REGEXP_EXTRACT(template, '(\d{4})$'),
           '%Y%d%m'
