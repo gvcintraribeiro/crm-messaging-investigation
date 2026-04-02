@@ -311,19 +311,16 @@ Convenção observada nos dados: o sufixo numérico do template segue o padrão 
 SELECT
     session_id,
     template,
-    publish_time::DATE                                                              AS data_disparo,
-    REGEXP_EXTRACT(template, '(\d{4})$')                                           AS sufixo_ddmm,
-    STRPTIME(
-        CAST(YEAR(CURRENT_DATE) AS VARCHAR) || REGEXP_EXTRACT(template, '(\d{4})$'),
-        '%Y%d%m'
-    )::DATE                                                                         AS data_esperada
+    publish_time::DATE                       AS data_disparo,
+    REGEXP_EXTRACT(template, '(\d{4})$')     AS sufixo_ddmm,
+    CURRENT_DATE                             AS data_esperada
 FROM campanhas
 WHERE REGEXP_EXTRACT(template, '(\d{4})$') IS NOT NULL
-  AND publish_time::DATE
-      != STRPTIME(
-             CAST(YEAR(CURRENT_DATE) AS VARCHAR) || REGEXP_EXTRACT(template, '(\d{4})$'),
-             '%Y%d%m'
-         )::DATE
+  AND publish_time::DATE != CURRENT_DATE
+  AND STRPTIME(
+          CAST(YEAR(CURRENT_DATE) AS VARCHAR) || REGEXP_EXTRACT(template, '(\d{4})$'),
+          '%Y%d%m'
+      )::DATE != CURRENT_DATE
 ```
 
 > ⚠️ Qualquer linha retornada indica um template com data inconsistente — candidato a erro de nomenclatura ou disparo no dia errado.
